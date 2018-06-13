@@ -18,13 +18,15 @@ namespace PalTrackerTests
 
         public TimeEntryIntegrationTest()
         {
-            _testClient = IntegrationTestServer.Start().CreateClient();
+            Environment.SetEnvironmentVariable("MYSQL__CLIENT__CONNECTIONSTRING", DbTestSupport.TestDbConnectionString);
+            DbTestSupport.ExecuteSql("TRUNCATE TABLE time_entries");
+             _testClient = IntegrationTestServer.Start().CreateClient();
         }
 
         [Fact]
         public async void Read()
         {
-            var id = await CreateTimeEntry(new TimeEntry(999, 1010,  new DateTime(2015, 10, 10), 9));
+            var id = await CreateTimeEntry(new TimeEntry(999, 1010, new DateTime(2015, 10, 10), 9));
 
             var response = await _testClient.GetAsync($"/time-entries/{id}").ConfigureAwait(false);
             var responseBody = JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
@@ -40,7 +42,7 @@ namespace PalTrackerTests
         [Fact]
         public async void Create()
         {
-            var timeEntry = new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24);
+            var timeEntry = new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24);
 
             var response = await _testClient.PostAsync("/time-entries", SerializePayload(timeEntry)).ConfigureAwait(false);
             var responseBody = JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
@@ -56,8 +58,8 @@ namespace PalTrackerTests
         [Fact]
         public async void List()
         {
-            var id1 = await CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
-            var id2 = await CreateTimeEntry(new TimeEntry(444, 555,  new DateTime(2008, 02, 10), 6));
+            var id1 = await CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
+            var id2 = await CreateTimeEntry(new TimeEntry(444, 555, new DateTime(2008, 02, 10), 6));
 
             var response = await _testClient.GetAsync("/time-entries").ConfigureAwait(false);
             var responseBody = JArray.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
@@ -80,8 +82,8 @@ namespace PalTrackerTests
         [Fact]
         public async void Update()
         {
-            var id = await CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
-            var updated = new TimeEntry(999, 888,  new DateTime(2012, 08, 12), 2);
+            var id = await CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
+            var updated = new TimeEntry(999, 888, new DateTime(2012, 08, 12), 2);
 
             var putResponse = await _testClient.PutAsync($"/time-entries/{id}", SerializePayload(updated)).ConfigureAwait(false);
             var getResponse = await _testClient.GetAsync($"/time-entries/{id}").ConfigureAwait(false);
@@ -112,7 +114,7 @@ namespace PalTrackerTests
         [Fact]
         public async void Delete()
         {
-            var id = await CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
+            var id = await CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
 
             var deleteResponse = await _testClient.DeleteAsync($"/time-entries/{id}").ConfigureAwait(false);
             var getResponse = await _testClient.GetAsync($"/time-entries/{id}").ConfigureAwait(false);

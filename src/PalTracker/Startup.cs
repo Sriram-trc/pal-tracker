@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 namespace PalTracker
 {
@@ -40,7 +41,8 @@ namespace PalTracker
             var address= Configuration.GetValue<string>("CF_INSTANCE_ADDR");
 
             services.AddSingleton(sp=> new CloudFoundryInfo(port,memory,index,address));
-            services.AddSingleton<ITimeEntryRepository, InMemoryTimeEntryRepository>();
+            services.AddScoped<ITimeEntryRepository, MySqlTimeEntryRepository>();
+            services.AddDbContext<TimeEntryContext>(options => options.UseMySql(Configuration));
 
         }
 

@@ -33,6 +33,14 @@ namespace PalTracker
                 throw new ApplicationException("WELCOME_MESSAGE not configured.");
             }
             services.AddSingleton(sp => new WelcomeMessage(message));
+
+            var port= Configuration.GetValue<string>("PORT");
+            var memory= Configuration.GetValue<string>("MEMORY_LIMIT");
+            var index= Configuration.GetValue<string>("CF_INSTANCE_INDEX");
+            var address= Configuration.GetValue<string>("CF_INSTANCE_ADDR");
+
+            services.AddSingleton(sp=> new CloudFoundryInfo(port,memory,index,address));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

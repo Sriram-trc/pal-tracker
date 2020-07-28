@@ -40,6 +40,7 @@ namespace PalTracker
             var address= Configuration.GetValue<string>("CF_INSTANCE_ADDR");
 
             services.AddSingleton(sp=> new CloudFoundryInfo(port,memory,index,address));
+            services.AddSingleton<ITimeEntryRepository, InMemoryTimeEntryRepository>();
 
         }
 

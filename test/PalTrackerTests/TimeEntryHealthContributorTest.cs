@@ -3,7 +3,6 @@ using System.Linq;
 using Moq;
 using PalTracker;
 using Xunit;
-using static PalTracker.TimeEntryHealthContributor;
 using static Steeltoe.Common.HealthChecks.HealthStatus;
 
 namespace PalTrackerTests
@@ -22,13 +21,13 @@ namespace PalTrackerTests
         [Fact]
         public void Health_StatusUp_WhenBelowThreshold()
         {
-            const int timeEntryCount = MaxTimeEntries - 1;
+            const int timeEntryCount =TimeEntryHealthContributor.MaxTimeEntries - 1;
 
             _repository.Setup(r => r.List())
                 .Returns(MakeTimeEntries(timeEntryCount));
 
             Assert.Equal(UP, _contributor.Health().Status);
-            Assert.Equal(MaxTimeEntries, _contributor.Health().Details["threshold"]);
+            Assert.Equal(TimeEntryHealthContributor.MaxTimeEntries, _contributor.Health().Details["threshold"]);
             Assert.Equal(timeEntryCount, _contributor.Health().Details["count"]);
             Assert.Equal("UP", _contributor.Health().Details["status"]);
         }
@@ -36,13 +35,13 @@ namespace PalTrackerTests
         [Fact]
         public void Health_StatusDown_WhenAtThreshold()
         {
-            const int timeEntryCount = MaxTimeEntries;
+            const int timeEntryCount = TimeEntryHealthContributor.MaxTimeEntries;
 
             _repository.Setup(r => r.List())
                 .Returns(MakeTimeEntries(timeEntryCount));
 
             Assert.Equal(DOWN, _contributor.Health().Status);
-            Assert.Equal(MaxTimeEntries, _contributor.Health().Details["threshold"]);
+            Assert.Equal(TimeEntryHealthContributor.MaxTimeEntries, _contributor.Health().Details["threshold"]);
             Assert.Equal(timeEntryCount, _contributor.Health().Details["count"]);
             Assert.Equal("DOWN", _contributor.Health().Details["status"]);
         }
@@ -50,13 +49,13 @@ namespace PalTrackerTests
         [Fact]
         public void Health_StatusDown_WhenAboveThreshold()
         {
-            const int timeEntryCount = MaxTimeEntries + 1;
+            const int timeEntryCount = TimeEntryHealthContributor.MaxTimeEntries + 1;
 
             _repository.Setup(r => r.List())
                 .Returns(MakeTimeEntries(timeEntryCount));
 
             Assert.Equal(DOWN, _contributor.Health().Status);
-            Assert.Equal(MaxTimeEntries, _contributor.Health().Details["threshold"]);
+            Assert.Equal(TimeEntryHealthContributor.MaxTimeEntries, _contributor.Health().Details["threshold"]);
             Assert.Equal(timeEntryCount, _contributor.Health().Details["count"]);
             Assert.Equal("DOWN", _contributor.Health().Details["status"]);
         }

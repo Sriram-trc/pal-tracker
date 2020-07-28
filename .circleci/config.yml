@@ -39,7 +39,23 @@ jobs:
             echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             apt-get update
             apt-get install cf-cli
+      - run:
+          name: Install jq
+          command: |
+            apt-get -y install jq
 
+      - run:
+          name: Install netcat
+          command: |
+            apt-get -y install netcat
+
+      - run:
+          name: Install flyway
+          command: |
+            mkdir -p $EXTRACT_DEST
+            cd $EXTRACT_DEST
+            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
+     
       - run:
           name: Unzip artifacts
           command: |
@@ -55,6 +71,7 @@ jobs:
             cf auth "$CF_USERNAME" "$CF_PASSWORD"
             cf target -o "$CF_ORG" -s "$CF_SPACE_REVIEW"
             cf push -f manifest-$ENVIRONMENT.yml
+            bash ./migrate-databases.sh pal-tracker . tracker-database
 
   deployToProd:
     docker:
@@ -75,7 +92,22 @@ jobs:
             echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
             apt-get update
             apt-get install cf-cli
+      - run:
+          name: Install jq
+          command: |
+            apt-get -y install jq
 
+      - run:
+          name: Install netcat
+          command: |
+            apt-get -y install netcat
+
+      - run:
+          name: Install flyway
+          command: |
+            mkdir -p $EXTRACT_DEST
+            cd $EXTRACT_DEST
+            curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
       - run:
           name: Unzip artifacts
           command: |
@@ -91,6 +123,7 @@ jobs:
             cf auth "$CF_USERNAME" "$CF_PASSWORD"
             cf target -o "$CF_ORG" -s "$CF_SPACE_PROD"
             cf push -f manifest-$ENVIRONMENT.yml
+            bash ./migrate-databases.sh pal-tracker-prod . tracker-database
 
 workflows:
   version: 2
